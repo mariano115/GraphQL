@@ -1,7 +1,11 @@
+const { loggerDeclaration } = require("../tools/utils");
+const logger = loggerDeclaration()
+
 const auth = (req, res, next) => {
   if (req.session?.email) {
     next();
   } else {
+    logger.info("Deberas loguearte primero para acceder");
     res.send("Deberas loguearte primero para acceder");
   }
 };

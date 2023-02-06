@@ -10,13 +10,16 @@ const Config = require("./config");
 const cookieParser = require("cookie-parser");
 const userModel = require("./models/User.model");
 const MongoStore = require("connect-mongo");
+const { graphqlHTTP } = require("express-graphql");
 const { isValidPassword, loggerDeclaration, getDataUser } = require("./tools/utils");
 const { auth } = require("./middlewares/middlewares");
 const parseArgs = require("minimist");
 const routerSession = require("./api/routerSession")
-const routerProduct = require("./api/routerProduct")
 const routerCart = require("./api/routerCart")
 const routerMessage = require("./api/routerMessage")
+const routerProduct = require("./api/routerProduct")
+const ProductSchema = require("./schema/product.schema")
+const ProductController = require("./controllers/ProductControllerGraph")
 
 //loggers
 const logger = loggerDeclaration()
@@ -51,9 +54,20 @@ app.use(
 
 /*------------Routers-----------*/
 app.use("/session", routerSession)
-app.use("/productos", routerProduct)
+app.use("/productosrest", routerProduct)
 app.use("/carrito", routerCart)
 app.use("/mensajes", routerMessage)
+app.use('/productos', graphqlHTTP({
+  schema: ProductSchema,
+  rootValue:{
+      getProducts: ProductController.getProducts,
+      getProductById: ProductController.getProductById,
+      addProduct: ProductController.addProduct,
+      updateProductById: ProductController.updateProductById,
+      deleteProductById: ProductController.deleteProductById
+  },
+  graphiql: true
+}))
 
 
 //Puerto enviado por ARGS
